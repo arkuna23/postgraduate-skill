@@ -13,7 +13,7 @@ def env_file():
     base = Path(os.environ.get("XDG_CONFIG_HOME") or (Path.home() / ".config"))
     return base / "environment.d" / "postgraduate.conf"
 FIELDS = """\
---school --college --major --major-code --direction   文本包含
+--school --college --major --major-code --direction --subject   文本包含
 --tier --region --province --city --area --study-mode --year   精确匹配
 --score   分数落在分段内，并给出 matchedSegment
 --min-admit-rate --min-admitted --min-retest   分段阈值
@@ -119,6 +119,14 @@ def keep_segment(segment, args):
         return False
     return True
 
+def has_subject(item, needle):
+    if not needle:
+        return True
+    for subject in item.get("subjects") or []:
+        if needle in str(subject.get("code") or "") or needle in str(subject.get("name") or ""):
+            return True
+    return False
+
 
 def match_item(item, args):
     checks = [
@@ -127,6 +135,7 @@ def match_item(item, args):
         contains(item.get("major"), args.major),
         contains(item.get("majorCode"), args.major_code),
         contains(item.get("directions"), args.direction),
+        has_subject(item, args.subject),
         same(item.get("tier"), args.tier),
         same(item.get("region"), args.region),
         same(item.get("province"), args.province),
@@ -163,6 +172,7 @@ def parser():
     parse.add_argument("--major")
     parse.add_argument("--major-code")
     parse.add_argument("--direction")
+    parse.add_argument("--subject")
     parse.add_argument("--tier")
     parse.add_argument("--region")
     parse.add_argument("--province")
