@@ -1,0 +1,28 @@
+---
+name: postgraduate-skill
+description: 查询考研研招复试分段和院校。用户要按分数、专业、学校、学院、层次（985/211/双非）、地区、省份、城市、A/B 区或学习方式筛选学校时使用。
+---
+
+# 研招查询
+
+只运行本目录的 `scripts/query.py`。不要打开或解密 `data/retest.json.enc`。
+
+密码不在这个仓库里。用户告诉你之后，写入 `~/.config/environment.d/postgraduate.conf`（若设置了 `XDG_CONFIG_HOME`，则写到那里的 `environment.d/postgraduate.conf`）。一行 `POSTGRADUATE_DATA_KEY=...`，权限 `0600`。不要把密码写进本目录，不要提交，不要每次让用户在 shell 里 export。用户重新打包并给了新密码时，覆盖这个文件。
+
+## 查询
+
+在本目录执行。条件可以组合，同时满足才留下。stdout 是 JSON。
+
+```bash
+python3 scripts/query.py --major 计算机 --tier 985 --score 380 --limit 5
+```
+
+- 包含：`--school` `--college` `--major` `--major-code` `--direction`
+- 精确：`--tier` `--region` `--province` `--city` `--area` `--study-mode` `--year`
+- `--score` 落在分段里。结果多一个 `matchedSegment`，按录取比例和录取人数从高到低
+- `--min-admit-rate` `--min-admitted` `--min-retest`
+- `--limit` 默认 20
+- `--count` 只打印条数
+- `--fields` 打印参数说明，不解密
+
+没有 `--score` 时，每条包含学校、学院、专业、层次、地区、省份、城市、A/B 区、学习方式、方向、年份、全部分段和 `sheet`。
